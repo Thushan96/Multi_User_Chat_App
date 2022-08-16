@@ -3,10 +3,14 @@ package lk.ijse.controller;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXTextArea;
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
+import javafx.geometry.Insets;
 import javafx.geometry.NodeOrientation;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -33,6 +37,7 @@ public class ChatRoomFormController extends Thread{
     public TextField txtMsg;
     public JFXButton btnSendMsg;
     public VBox vBox;
+    public ScrollPane sp_Main;
 
     private BufferedReader reader;
     private PrintWriter writer;
@@ -64,6 +69,14 @@ public class ChatRoomFormController extends Thread{
             e.printStackTrace();
         }
 
+        vBox.heightProperty().addListener(new ChangeListener<Number>() {
+            @Override
+            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+                sp_Main.setVvalue((Double)newValue);
+            }
+        });
+
+
         //----------------validation-----------------------
         Pattern msgPattern = Pattern.compile("^[A-z0-9 ,./?;-_`~\\<>*+'\"|!@#$%^&*(){}-]{1,}$");
         map.put(txtMsg,msgPattern);
@@ -79,10 +92,6 @@ public class ChatRoomFormController extends Thread{
                     String[] tokens = msg.split(" ");
                     String cmd = tokens[0];
 
-                    StringBuilder fullMsg = new StringBuilder();
-                    for (int i = 1; i < tokens.length; i++) {
-                        fullMsg.append(tokens[i]+" ");
-                    }
 
                     String[] msgToAr = msg.split(" ");
                     String st = "";
@@ -119,39 +128,52 @@ public class ChatRoomFormController extends Thread{
 
                             vBox.setAlignment(Pos.TOP_LEFT);
                             hBox.setAlignment(Pos.CENTER_LEFT);
-
                             Text text1=new Text("  "+cmd+" :");
-                            text1.setFill(Color.WHITE);
-                            hBox.getChildren().add(text1);
-                            hBox.getChildren().add(imageView);
+
+
+                            TextFlow textFlow=new TextFlow(text1,imageView);//if text big wrap it to another line
+                            textFlow.setStyle(
+                                    "-fx-background-color: rgb(15,125,242); " +
+                                            "-fx-background-radius: 20px;" );
+                            textFlow.setPadding(new Insets(5,10,5,10));
+
+
+
+                            hBox.getChildren().add(textFlow);
 
                         } else {
+                            TextFlow textFlow=new TextFlow(imageView);//if text big wrap it to another line
+                            textFlow.setStyle(
+                                    "-fx-background-color: rgb(70, 185, 28); " +
+                                            "-fx-background-radius: 20px" );
+                            textFlow.setPadding(new Insets(5,10,5,10));
+
                             hBox.setAlignment(Pos.BOTTOM_RIGHT);
-                            hBox.getChildren().add(imageView);
-                            Text text1=new Text(": Me   ");
-                            text1.setFill(Color.WHITE);
-                            hBox.getChildren().add(text1);
+                            hBox.getChildren().add(textFlow);
+
 
                         }
 
                         Platform.runLater(() -> vBox.getChildren().addAll(hBox));
 
                     } else {
-                        text.setFill(Color.WHITE);
-                        text.getStyleClass().add("message");
-                        TextFlow tempFlow = new TextFlow();
+                        TextFlow textFlow = new TextFlow();
+                        textFlow.setStyle("-fx-color: rgb(239,242,255); " +
+                                "-fx-background-color: rgb(15,125,242); " +
+                                "-fx-background-radius: 20px" );
+
+                        textFlow.setPadding(new Insets(5,10,5,10));
+                        text.setFill(Color.color(0.934,0.945,0.996));
 
                         if (!cmd.equalsIgnoreCase(username + ":")) {
                             Text txtName = new Text(cmd + " ");
-                            txtName.setFill(Color.WHITE);
-                            txtName.getStyleClass().add("txtName");
-                            tempFlow.getChildren().add(txtName);
+                            textFlow.getChildren().add(txtName);
                         }
 
-                        tempFlow.getChildren().add(text);
-                        tempFlow.setMaxWidth(200); //200
+                        textFlow.getChildren().add(text);
+                        textFlow.setMaxWidth(200); //200
 
-                        TextFlow flow = new TextFlow(tempFlow);
+                        TextFlow flow = new TextFlow(textFlow);
 
                         HBox hBox = new HBox(12); //12
 
@@ -159,21 +181,22 @@ public class ChatRoomFormController extends Thread{
 
                     if (!cmd.equalsIgnoreCase(username + ":")) {
 
-                           tempFlow.getStyleClass().add("tempFlowFlipped");
-                           flow.getStyleClass().add("textFlowFlipped");
                             vBox.setAlignment(Pos.TOP_LEFT);
                             hBox.setAlignment(Pos.CENTER_LEFT);
                             hBox.getChildren().add(flow);
 
                         } else {
-                             text.setFill(Color.WHITE);
-                             tempFlow.getStyleClass().add("tempFlow");
-                             flow.getStyleClass().add("textFlow");
-                            Text text2=new Text(fullMsg+":Me   ");
-                            text2.setFill(Color.WHITE);
-                            TextFlow flow2 = new TextFlow(text2);
+                            Text text2=new Text(st);
+                            TextFlow flow2 = new TextFlow();
+                        TextFlow textFlow2 = new TextFlow(text2);
+                        textFlow2.setStyle("-fx-color: rgb(239,242,255); " +
+                                "-fx-background-color: rgb(70, 185, 28); " +
+                                "-fx-background-radius: 20px" );
+
+                        textFlow2.setPadding(new Insets(5,10,5,10));
+                        text2.setFill(Color.color(0.934,0.945,0.996));
                             hBox.setAlignment(Pos.BOTTOM_RIGHT);
-                            hBox.getChildren().add(flow2);
+                            hBox.getChildren().add(textFlow2);
                         }
                         Platform.runLater(() -> vBox.getChildren().addAll(hBox));
                     }
@@ -191,7 +214,7 @@ public class ChatRoomFormController extends Thread{
 
         txtMsg.clear();
 
-        if(msg.equalsIgnoreCase("BYE") || (msg.equalsIgnoreCase("logout"))) {
+        if(msg.equalsIgnoreCase("BYE") || (msg.equalsIgnoreCase("EXIT"))) {
             writer.println("\n"+username + " has left the chat!\n");
             System.exit(0);
         }

@@ -17,7 +17,7 @@ public class ClientHandler extends Thread{
         try {
             this.socket = socket;
             this.clients = clients;
-            this.reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            this.reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));//get msg from input stream and add it to bufferedReader(to convert as string)
             this.writer = new PrintWriter(socket.getOutputStream(), true);
 
         } catch (IOException e) {
@@ -28,6 +28,12 @@ public class ClientHandler extends Thread{
         try {
             String msg;
             while ((msg = reader.readLine()) != null) {
+
+                try{
+
+                }catch (Exception e){
+                    System.out.println("closed");
+                }
                 if (msg.equalsIgnoreCase( "exit")) {
                     return;
                 }
@@ -36,8 +42,10 @@ public class ClientHandler extends Thread{
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+
         }
+
+
         finally {
             try {
                 System.out.println("Client has Disconnected!");
@@ -45,7 +53,7 @@ public class ClientHandler extends Thread{
                 writer.close();
                 socket.close();
             } catch (IOException e) {
-                e.printStackTrace();
+
             }
         }
     }

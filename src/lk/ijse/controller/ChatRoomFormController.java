@@ -118,8 +118,8 @@ public class ChatRoomFormController extends Thread{
 
                         ImageView imageView = new ImageView(image);
 
-                        imageView.setFitHeight(150);
-                        imageView.setFitWidth(200);
+                        imageView.setFitHeight(200);
+                        imageView.setFitWidth(310);
 
                         HBox hBox = new HBox(10);
                         hBox.setAlignment(Pos.BOTTOM_RIGHT);
@@ -156,7 +156,7 @@ public class ChatRoomFormController extends Thread{
 
                         Platform.runLater(() -> vBox.getChildren().addAll(hBox));
 
-                    } else {
+                    } else { //IF not an image
                         TextFlow textFlow = new TextFlow();
                         textFlow.setStyle("-fx-color: rgb(239,242,255); " +
                                 "-fx-background-color: rgb(15,125,242); " +
@@ -187,7 +187,6 @@ public class ChatRoomFormController extends Thread{
 
                         } else {
                             Text text2=new Text(st);
-                            TextFlow flow2 = new TextFlow();
                         TextFlow textFlow2 = new TextFlow(text2);
                         textFlow2.setStyle("-fx-color: rgb(239,242,255); " +
                                 "-fx-background-color: rgb(70, 185, 28); " +
@@ -213,6 +212,8 @@ public class ChatRoomFormController extends Thread{
         writer.println(username + ": " + txtMsg.getText());
 
         txtMsg.clear();
+
+
 
         if(msg.equalsIgnoreCase("BYE") || (msg.equalsIgnoreCase("EXIT"))) {
             writer.println("\n"+username + " has left the chat!\n");
